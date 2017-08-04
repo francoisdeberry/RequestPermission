@@ -32,14 +32,24 @@ public enum SPRequestPermissionType {
     case locationWithBackground
     case contacts
     case reminders
+    case speechRecognition
+    case motion
 }
 
 class SPPermissionsManager: SPPermissionsManagerInterface {
     
-    func isAuthorizedPermission(_ permission: SPRequestPermissionType) -> Bool {
+    func isAuthorizedPermission(_ permission: SPRequestPermissionType, withComlectionHandler complectionHandler: @escaping (Bool) -> ()) {
         let manager = self.getManagerForPermission(permission)
-        return manager.isAuthorized()
+        manager.isAuthorized { (authorized:Bool) -> ()? in
+            complectionHandler(authorized)
+        }
     }
+
+    
+//    func isAuthorizedPermission(_ permission: SPRequestPermissionType) -> Bool {
+//        
+//        return manager.isAuthorized()
+//    }
     
     func requestPermission(_ permission: SPRequestPermissionType, with complectionHandler: @escaping ()->()) {
         let manager = self.getManagerForPermission(permission)
@@ -70,21 +80,25 @@ class SPPermissionsManager: SPPermissionsManagerInterface {
             return SPContactsPermission()
         case .reminders:
             return SPRemindersPermission()
+        case .speechRecognition:
+            return SPSpeechRecognitionPermission()
+        case .motion:
+            return SPMotionPermission()
         }
     }
 }
 
 public protocol SPPermissionsManagerInterface {
     
-    func isAuthorizedPermission(_ permission: SPRequestPermissionType) -> Bool
+    func isAuthorizedPermission(_ permission: SPRequestPermissionType, withComlectionHandler complectionHandler: @escaping (Bool)->())
     
     func requestPermission(_ permission: SPRequestPermissionType, with complectionHandler: @escaping ()->())
 }
 
+
 public protocol SPPermissionInterface {
     
-    func isAuthorized() -> Bool
-    
+    func isAuthorized(withComlectionHandler complectionHandler: @escaping (Bool)->()?)
     func request(withComlectionHandler complectionHandler: @escaping ()->()?)
 }
 

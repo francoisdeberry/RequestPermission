@@ -25,14 +25,116 @@ import Photos
 import MapKit
 import EventKit
 import Contacts
+import Speech
+import CoreMotion
+
+
+
+class SPMotionPermission: SPPermissionInterface {
+    
+    func isAuthorized(withComlectionHandler complectionHandler: @escaping (Bool) -> ()?) {
+        
+        if !UserDefaults.standard.bool(forKey: "motionRequested") {
+            
+            complectionHandler(false)
+            
+        } else {
+            
+            let manager = CMMotionActivityManager()
+            let today = Date()
+            
+            manager.queryActivityStarting(from: today, to: today, to: OperationQueue.main) { (_: [CMMotionActivity]?, error) in
+                if let error = error as NSError?, error.code == Int(CMErrorMotionActivityNotAuthorized.rawValue){
+                    print("NotAuthorized")
+                    complectionHandler(false)
+                } else {
+                    print("Authorized")
+                    complectionHandler(true)
+                }
+            }
+            
+        }
+        
+        /*let manager = CMMotionActivityManager()
+        manager.authorizationStatus()
+        let today = Date()
+        
+        manager.queryActivityStarting(from: today, to: today, to: OperationQueue.main) { (_: [CMMotionActivity]?, error) in
+            if let error = error as NSError?, error.code == Int(CMErrorMotionActivityNotAuthorized.rawValue){
+                print("NotAuthorized")
+                complectionHandler(false)
+            } else {
+                print("Authorized")
+                complectionHandler(true)
+            }
+        }*/
+        
+        /*manager.queryActivityStarting(from: today, to: today, to: OperationQueue.main,
+                                              withHandler: { (activities: [CMMotionActivity]?, error: NSError?) -> Void in
+                                                
+                                                
+                                                
+        } as! CMMotionActivityQueryHandler)*/
+        
+    }
+    
+    func request(withComlectionHandler complectionHandler: @escaping ()->()?) {
+        
+        UserDefaults.standard.set(true, forKey: "motionRequested")
+        
+        if #available(iOS 9.0, *) {
+            print("REQUEST")
+            let recorder = CMSensorRecorder()
+            DispatchQueue.global().async {
+                recorder.recordAccelerometer(forDuration: 1)
+            }
+        }
+        
+        complectionHandler()
+    }
+}
+
+
+
+class SPSpeechRecognitionPermission: SPPermissionInterface {
+    
+    func isAuthorized(withComlectionHandler complectionHandler: @escaping (Bool) -> ()?) {
+        if #available(iOS 10.0, *) {
+            //complectionHandler(false)
+            if SFSpeechRecognizer.authorizationStatus() == .authorized {
+                complectionHandler(true)
+            } else {
+                complectionHandler(false)
+            }
+        } else {
+            // Fallback on earlier versions
+            complectionHandler(false)
+        }
+    }
+    
+    func request(withComlectionHandler complectionHandler: @escaping ()->()?) {
+        
+        if #available(iOS 10.0, *) {
+            SFSpeechRecognizer.requestAuthorization {
+                status in
+                DispatchQueue.main.async {
+                    complectionHandler()
+                }
+            }
+        } else {
+            // Fallback on earlier versions
+            complectionHandler()
+        }
+    }
+}
 
 class SPCameraPermission: SPPermissionInterface {
     
-    func isAuthorized() -> Bool {
+    func isAuthorized(withComlectionHandler complectionHandler: @escaping (Bool) -> ()?) {
         if AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo) == AVAuthorizationStatus.authorized {
-            return true
+            complectionHandler(true)
         } else {
-            return false
+            complectionHandler(false)
         }
     }
     
@@ -48,12 +150,12 @@ class SPCameraPermission: SPPermissionInterface {
 
 class SPNotificationPermission: SPPermissionInterface {
     
-    func isAuthorized() -> Bool {
+    func isAuthorized(withComlectionHandler complectionHandler: @escaping (Bool) -> ()?) {
         let notificationType = UIApplication.shared.currentUserNotificationSettings!.types
         if notificationType == [] {
-            return false
+            complectionHandler(false)
         } else {
-            return true
+            complectionHandler(true)
         }
     }
     
@@ -91,11 +193,11 @@ class SPNotificationPermission: SPPermissionInterface {
 
 class SPPhotoLibraryPermission: SPPermissionInterface {
     
-    func isAuthorized() -> Bool {
+    func isAuthorized(withComlectionHandler complectionHandler: @escaping (Bool) -> ()?) {
         if PHPhotoLibrary.authorizationStatus() == PHAuthorizationStatus.authorized {
-            return true
+            complectionHandler(true)
         } else {
-            return false
+            complectionHandler(false)
         }
     }
     
@@ -111,11 +213,12 @@ class SPPhotoLibraryPermission: SPPermissionInterface {
 
 class SPMicrophonePermission: SPPermissionInterface {
     
-    func isAuthorized() -> Bool {
+    func isAuthorized(withComlectionHandler complectionHandler: @escaping (Bool) -> ()?) {
         if AVAudioSession.sharedInstance().recordPermission() == .granted {
-            return true
+            complectionHandler(true)
+        } else {
+            complectionHandler(false)
         }
-        return false
     }
     
     func request(withComlectionHandler complectionHandler: @escaping ()->()?) {
@@ -131,13 +234,13 @@ class SPMicrophonePermission: SPPermissionInterface {
 
 class SPCalendarPermission: SPPermissionInterface {
     
-    func isAuthorized() -> Bool {
+    func isAuthorized(withComlectionHandler complectionHandler: @escaping (Bool) -> ()?) {
         let status = EKEventStore.authorizationStatus(for: EKEntityType.event)
         switch (status) {
         case EKAuthorizationStatus.authorized:
-            return true
+            complectionHandler(true)
         default:
-            return false
+            complectionHandler(false)
         }
     }
     
@@ -166,28 +269,28 @@ class SPLocationPermission: SPPermissionInterface {
         self.type = type
     }
     
-    func isAuthorized() -> Bool {
+    func isAuthorized(withComlectionHandler complectionHandler: @escaping (Bool) -> ()?) {
         
         let status = CLLocationManager.authorizationStatus()
         
         switch self.type {
         case .Always:
             if status == .authorizedAlways {
-                return true
+                complectionHandler(true)
             } else {
-                return false
+                complectionHandler(false)
             }
         case .WhenInUse:
             if status == .authorizedWhenInUse {
-                return true
+                complectionHandler(true)
             } else {
-                return false
+                complectionHandler(false)
             }
         case .AlwaysWithBackground:
             if status == .authorizedAlways {
-                return true
+                complectionHandler(true)
             } else {
-                return false
+                complectionHandler(false)
             }
         }
     }
@@ -237,20 +340,20 @@ class SPLocationPermission: SPPermissionInterface {
 
 class SPContactsPermission: SPPermissionInterface {
     
-    func isAuthorized() -> Bool {
+    func isAuthorized(withComlectionHandler complectionHandler: @escaping (Bool) -> ()?) {
         if #available(iOS 9.0, *) {
             let status = CNContactStore.authorizationStatus(for: .contacts)
             if status == .authorized {
-                return true
+                complectionHandler(true)
             } else {
-                return false
+                complectionHandler(false)
             }
         } else {
             let status = ABAddressBookGetAuthorizationStatus()
             if status == .authorized {
-                return true
+                complectionHandler(true)
             } else {
-                return false
+                complectionHandler(false)
             }
         }
         
@@ -278,13 +381,13 @@ class SPContactsPermission: SPPermissionInterface {
 
 class SPRemindersPermission: SPPermissionInterface {
     
-    func isAuthorized() -> Bool {
+    func isAuthorized(withComlectionHandler complectionHandler: @escaping (Bool) -> ()?) {
         let status = EKEventStore.authorizationStatus(for: EKEntityType.reminder)
         switch (status) {
         case EKAuthorizationStatus.authorized:
-            return true
+            complectionHandler(true)
         default:
-            return false
+            complectionHandler(false)
         }
     }
     
@@ -301,13 +404,13 @@ class SPRemindersPermission: SPPermissionInterface {
 
 class SPBluetoothPermission: SPPermissionInterface {
     
-    func isAuthorized() -> Bool {
+    func isAuthorized(withComlectionHandler complectionHandler: @escaping (Bool) -> ()?) {
         let status = EKEventStore.authorizationStatus(for: EKEntityType.reminder)
         switch (status) {
         case EKAuthorizationStatus.authorized:
-            return true
+            complectionHandler(true)
         default:
-            return false
+            complectionHandler(false)
         }
     }
     

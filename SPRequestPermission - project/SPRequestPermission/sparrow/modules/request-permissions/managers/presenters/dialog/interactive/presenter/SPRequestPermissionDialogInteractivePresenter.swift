@@ -78,7 +78,71 @@ class SPRequestPermissionDialogInteractivePresenter {
         let control = sender as! SPRequestPermissionTwiceControlInterface
         self.eventsDelegate?.didSelectedPermission(permission: control.permission)
         permissionManager.requestPermission(control.permission, with: {
-            if self.permissionManager.isAuthorizedPermission(control.permission) {
+            
+            self.permissionManager.isAuthorizedPermission(control.permission, withComlectionHandler: { (isAuthorized) in
+            
+                if isAuthorized {
+                    
+                    self.eventsDelegate?.didAllowPermission(permission: control.permission)
+                    control.setSelectedState(animated: true)
+                    
+                } else {
+                    
+                    self.eventsDelegate?.didDeniedPermission(permission: control.permission)
+                    control.setNormalState(animated: true)
+                    
+                    if !(control.permission == .notification) {
+                        self.showDialogForProtectPermissionOnViewController()
+                    } else {
+                        self.isPresentedNotificationRequest = true
+                        
+                        if #available(iOS 10.0, *){
+                            self.showDialogForProtectPermissionOnViewController(cancelHandler: {
+                                var denidedPermission: [SPRequestPermissionType] = []
+                                for permission in self.permissions {
+                                    
+                                    self.permissionManager.isAuthorizedPermission(permission, withComlectionHandler: { (authorized) in
+                                        if !authorized { denidedPermission.append(permission) }
+                                    })
+                                    
+                                    /*if !self.permissionManager.isAuthorizedPermission(permission) {
+                                     denidedPermission.append(permission)
+                                     }*/
+                                }
+                                if denidedPermission.count == 1 {
+                                    if denidedPermission[0] == SPRequestPermissionType.notification {
+                                        self.viewController.hide()
+                                    }
+                                }
+                            })
+                        } else {
+                            control.setSelectedState(animated: true)
+                            var denidedPermission: [SPRequestPermissionType] = []
+                            for permission in self.permissions {
+                                
+                                self.permissionManager.isAuthorizedPermission(permission, withComlectionHandler: { (authorized) in
+                                    if !authorized { denidedPermission.append(permission) }
+                                })
+                                
+                                /*if !self.permissionManager.isAuthorizedPermission(permission) {
+                                 denidedPermission.append(permission)
+                                 }*/
+                            }
+                            if denidedPermission.count == 1 {
+                                if denidedPermission[0] == SPRequestPermissionType.notification {
+                                    self.viewController.hide()
+                                }
+                            }
+                        }
+                        
+                        return
+                    }
+                    
+                }
+            
+            })
+            
+            /*if self.permissionManager.isAuthorizedPermission(control.permission) {
                 self.eventsDelegate?.didAllowPermission(permission: control.permission)
                 control.setSelectedState(animated: true)
             } else {
@@ -94,9 +158,14 @@ class SPRequestPermissionDialogInteractivePresenter {
                         self.showDialogForProtectPermissionOnViewController(cancelHandler: {
                             var denidedPermission: [SPRequestPermissionType] = []
                             for permission in self.permissions {
-                                if !self.permissionManager.isAuthorizedPermission(permission) {
+                                
+                                self.permissionManager.isAuthorizedPermission(permission, withComlectionHandler: { (authorized) in
+                                    if !authorized { denidedPermission.append(permission) }
+                                })
+                                
+                                /*if !self.permissionManager.isAuthorizedPermission(permission) {
                                     denidedPermission.append(permission)
-                                }
+                                }*/
                             }
                             if denidedPermission.count == 1 {
                                 if denidedPermission[0] == SPRequestPermissionType.notification {
@@ -108,9 +177,14 @@ class SPRequestPermissionDialogInteractivePresenter {
                         control.setSelectedState(animated: true)
                         var denidedPermission: [SPRequestPermissionType] = []
                         for permission in self.permissions {
-                            if !self.permissionManager.isAuthorizedPermission(permission) {
+                            
+                            self.permissionManager.isAuthorizedPermission(permission, withComlectionHandler: { (authorized) in
+                                if !authorized { denidedPermission.append(permission) }
+                            })
+                            
+                            /*if !self.permissionManager.isAuthorizedPermission(permission) {
                                 denidedPermission.append(permission)
-                            }
+                            }*/
                         }
                         if denidedPermission.count == 1 {
                             if denidedPermission[0] == SPRequestPermissionType.notification {
@@ -122,13 +196,22 @@ class SPRequestPermissionDialogInteractivePresenter {
                     return
                 }
                 
-            }
+            }*/
+            
+            
             var allPermissionAllowed: Bool = true
+            
             for permission in self.permissions {
-                if !self.permissionManager.isAuthorizedPermission(permission) {
+                
+                self.permissionManager.isAuthorizedPermission(permission, withComlectionHandler: { (authorized) in
+                    if !authorized { allPermissionAllowed = false }
+                })
+                
+                /*if !self.permissionManager.isAuthorizedPermission(permission) {
                     allPermissionAllowed = false
                     break
-                }
+                }*/
+                
             }
             if allPermissionAllowed {
                 delay(0.21, closure: {
@@ -137,9 +220,14 @@ class SPRequestPermissionDialogInteractivePresenter {
             } else {
                 var denidedPermission: [SPRequestPermissionType] = []
                 for permission in self.permissions {
-                    if !self.permissionManager.isAuthorizedPermission(permission) {
+                    
+                    self.permissionManager.isAuthorizedPermission(permission, withComlectionHandler: { (authorized) in
+                        if !authorized { denidedPermission.append(permission) }
+                    })
+                    
+                    /*if !self.permissionManager.isAuthorizedPermission(permission) {
                         denidedPermission.append(permission)
-                    }
+                    }*/
                 }
                 if denidedPermission.count == 1 {
                     if denidedPermission[0] == SPRequestPermissionType.notification {
@@ -197,11 +285,21 @@ class SPRequestPermissionDialogInteractivePresenter {
     @objc private func updatePermissionsStyle() {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
         for control in controls {
-            if permissionManager.isAuthorizedPermission(control.permission) {
+            
+            permissionManager.isAuthorizedPermission(control.permission, withComlectionHandler: { (authorized) in
+                
+                if authorized {
+                    control.setSelectedState(animated: false)
+                } else {
+                    control.setNormalState(animated: false)
+                }
+            })
+            
+            /*if permissionManager.isAuthorizedPermission(control.permission) {
                 control.setSelectedState(animated: false)
             } else {
                 control.setNormalState(animated: false)
-            }
+            }*/
         }
     }
 }

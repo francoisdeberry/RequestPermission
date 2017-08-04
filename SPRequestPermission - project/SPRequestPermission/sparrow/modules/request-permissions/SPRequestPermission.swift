@@ -24,21 +24,42 @@ import UIKit
 //MARK: - Interface
 public struct SPRequestPermission {
     
-    static public func isAllowPermission(_ permission: SPRequestPermissionType) -> Bool {
+    static public func isAllowPermission(_ permission: SPRequestPermissionType, withComlectionHandler complectionHandler: @escaping (Bool) -> ()) {
         let permissionManager = SPPermissionsManager.init()
-        return permissionManager.isAuthorizedPermission(permission)
-    }
-    
-    static public func isAllowPermissions(_ permissions: [SPRequestPermissionType]) -> Bool {
-        for permission in permissions {
-            if !self.isAllowPermission(permission) {
-                return false
-            }
+        //return permissionManager.isAuthorizedPermission(permission)
+        permissionManager.isAuthorizedPermission(permission) { (authorized:Bool) in
+            complectionHandler(authorized)
         }
-        return true
     }
     
-    private init() {}
+    static public func isAllowPermissions(_ permissions: [SPRequestPermissionType], withComlectionHandler complectionHandler: @escaping (Bool) -> ()) {
+        let dispatchGroup:DispatchGroup = DispatchGroup()
+        
+        var success:Bool = true
+        
+        for permission in permissions {
+            
+            dispatchGroup.enter()
+            
+            self.isAllowPermission(permission, withComlectionHandler: { (authorized:Bool) in
+                
+                if !authorized {
+                    success = false
+                }
+                
+                dispatchGroup.leave()
+            })
+            
+            /*if !self.isAllowPermission(permission) {
+                return false
+            }*/
+        }
+        
+        dispatchGroup.notify(queue: .main) { 
+            complectionHandler(success)
+        }
+        //return true
+    }
 }
 
 //MARK: - Modules
@@ -60,11 +81,7 @@ extension SPRequestPermission {
                 controller.present(on: viewController)
 
             }
-            
-            private init() {}
         }
-        
-        private init() {}
     }
     
     public struct native {
@@ -75,9 +92,5 @@ extension SPRequestPermission {
             presenter.requestPermissions()
             
         }
-        
-        private init() {}
     }
-    
-    private init() {}
 }

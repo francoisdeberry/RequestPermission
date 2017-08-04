@@ -38,6 +38,22 @@ class SPRequestPermissionNativePresenter {
         for permission in self.permissions {
             self.eventsDelegate?.didSelectedPermission(permission: permission)
             self.permissionManager.requestPermission(permission, with: {
+                
+                self.permissionManager.isAuthorizedPermission(permission, withComlectionHandler: { (authorized:Bool) -> () in
+                    
+                    if authorized {
+                        self.eventsDelegate?.didAllowPermission(permission: permission)
+                    } else {
+                        self.eventsDelegate?.didDeniedPermission(permission: permission)
+                    }
+                    
+                    if self.permissions.last == permission {
+                        self.eventsDelegate?.didHide()
+                    }
+                })
+                
+                
+                /*
                 if self.permissionManager.isAuthorizedPermission(permission) {
                     self.eventsDelegate?.didAllowPermission(permission: permission)
                 } else {
@@ -46,7 +62,7 @@ class SPRequestPermissionNativePresenter {
                 
                 if self.permissions.last == permission {
                     self.eventsDelegate?.didHide()
-                }
+                }*/
             })
         }
     }

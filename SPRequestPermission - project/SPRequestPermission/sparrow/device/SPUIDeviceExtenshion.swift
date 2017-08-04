@@ -41,10 +41,14 @@ public enum Model : String {
     iPadMini3      = "iPad Mini 3",
     iPadAir1       = "iPad Air 1",
     iPadAir2       = "iPad Air 2",
+    iPadPro        = "iPad Pro",
     iPhone6        = "iPhone 6",
     iPhone6plus    = "iPhone 6 Plus",
     iPhone6S       = "iPhone 6S",
     iPhone6Splus   = "iPhone 6S Plus",
+    iPhoneSE       = "iPhone SE",
+    iPhone7        = "iPhone 7",
+    iPhone7plus    = "iPhone 7 Plus",
     unrecognized   = "?unrecognized?"
 }
 
@@ -94,10 +98,19 @@ public extension UIDevice {
             "iPad4,7"   : .iPadMini3,
             "iPad4,8"   : .iPadMini3,
             "iPad4,9"   : .iPadMini3,
+            "iPad6,3"   : .iPadPro,
+            "iPad6,4"   : .iPadPro,
+            "iPad6,7"   : .iPadPro,
+            "iPad6,8"   : .iPadPro,
             "iPhone7,1" : .iPhone6plus,
             "iPhone7,2" : .iPhone6,
             "iPhone8,1" : .iPhone6S,
-            "iPhone8,2" : .iPhone6Splus
+            "iPhone8,2" : .iPhone6Splus,
+            "iPhone8,4" : .iPhoneSE,
+            "iPhone9,1" : .iPhone7,
+            "iPhone9,3" : .iPhone7,
+            "iPhone9,2" : .iPhone7plus,
+            "iPhone9,4" : .iPhone7plus
         ]
         
         if let model = modelMap[String.init(modelCode)] {

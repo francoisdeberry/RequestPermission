@@ -22,7 +22,7 @@ xcuserdata/
 *.xccheckout
 *.xcscmblueprint
 
-*.DS_Store
+*.DSStore
 
 ## Obj-C/Swift specific
 *.hmap

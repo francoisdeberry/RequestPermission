@@ -23,7 +23,7 @@ import UIKit
 
 public protocol SPRequestPermissionDialogInteractivePresenterDelegate: class {
     
-    weak var viewController: SPRequestPermissionDialogInteractiveViewControllerInterface! {get set}
+    var viewController: SPRequestPermissionDialogInteractiveViewControllerInterface! {get set}
     
     func didHide()
 }

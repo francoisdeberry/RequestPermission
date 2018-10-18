@@ -158,7 +158,6 @@ public class SPDialogSwipeController<DialogView: UIView, BottomView: UIView>: UI
         self.contentView.transform = .identity
         self.modalPresentationStyle = .overCurrentContext
         viewController.present(self, animated: false, completion: {
-            finished in
             self.updateLayoutAndSizes()
             self.updateContentViewShadow(yTranslationFactor: self.dialogShadowYtranslationFactor, blurRadiusFactor: self.dialogShadowBlurRadiusFactor, opacity: self.dialogShadowOpacity)
             self.contentView.center = CGPoint.init(
@@ -205,9 +204,7 @@ public class SPDialogSwipeController<DialogView: UIView, BottomView: UIView>: UI
         SPAnimation.animate(0.6, animations: {
             self.backgroundView.setGradeAlpha(0, blurRaius: 0)
         }, withComplection: {
-            finished in
             self.dismiss(animated: false, completion: {
-                finished in
                 self.animator.removeAllBehaviors()
                 self.contentView.transform = .identity
                 self.delegate?.didHideDialogController()
@@ -229,12 +226,12 @@ public class SPDialogSwipeController<DialogView: UIView, BottomView: UIView>: UI
             }
             SPAnimationSpring.animate(0.3, animations: {
                 self.actionBeforeRotation()
-            }, spring: self.spring, velocity: self.velocity, options: UIViewAnimationOptions.curveEaseIn)
+            }, spring: self.spring, velocity: self.velocity, options: UIView.AnimationOptions.curveEaseIn)
         }, completion: {
             finished in
             SPAnimationSpring.animate(0.35, animations: {
                 self.actionAfterRotation()
-            }, spring: self.spring, velocity: self.velocity, options: UIViewAnimationOptions.curveEaseOut)
+            }, spring: self.spring, velocity: self.velocity, options: UIView.AnimationOptions.curveEaseOut)
             
             self.updateLayoutAndSizes()
         })
@@ -304,22 +301,22 @@ public class SPDialogSwipeController<DialogView: UIView, BottomView: UIView>: UI
     var snapBehavior : UISnapBehavior!
     
     //MARK: - handle gesture
-    func handleGesture(sender: AnyObject) {
+    @objc func handleGesture(sender: AnyObject) {
         let myView = self.contentView
         let location = sender.location(in: view)
         let boxLocation = sender.location(in: myView)
         
-        if sender.state == UIGestureRecognizerState.began {
+        if sender.state == UIGestureRecognizer.State.began {
             animator.removeAllBehaviors()
-            let centerOffset = UIOffsetMake(boxLocation.x - myView.bounds.midX, boxLocation.y - myView.bounds.midY);
+            let centerOffset = UIOffset(horizontal: boxLocation.x - myView.bounds.midX, vertical: boxLocation.y - myView.bounds.midY);
             attachmentBehavior = UIAttachmentBehavior(item: myView, offsetFromCenter: centerOffset, attachedToAnchor: location)
             attachmentBehavior.frequency = 0
             animator.addBehavior(attachmentBehavior)
         }
-        else if sender.state == UIGestureRecognizerState.changed {
+        else if sender.state == UIGestureRecognizer.State.changed {
             self.attachmentBehavior.anchorPoint = location
         }
-        else if sender.state == UIGestureRecognizerState.ended {
+        else if sender.state == UIGestureRecognizer.State.ended {
             animator.removeBehavior(attachmentBehavior)
             snapBehavior = UISnapBehavior(item: myView, snapTo: self.dialogCenteringPoint)
             animator.addBehavior(snapBehavior)

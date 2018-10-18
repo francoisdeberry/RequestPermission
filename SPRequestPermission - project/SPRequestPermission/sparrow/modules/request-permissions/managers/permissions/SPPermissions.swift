@@ -131,7 +131,7 @@ class SPSpeechRecognitionPermission: SPPermissionInterface {
 class SPCameraPermission: SPPermissionInterface {
     
     func isAuthorized(withComlectionHandler complectionHandler: @escaping (Bool) -> ()?) {
-        if AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo) == AVAuthorizationStatus.authorized {
+        if AVCaptureDevice.authorizationStatus(for: AVMediaType.video) == AVAuthorizationStatus.authorized {
             complectionHandler(true)
         } else {
             complectionHandler(false)
@@ -139,7 +139,7 @@ class SPCameraPermission: SPPermissionInterface {
     }
     
     func request(withComlectionHandler complectionHandler: @escaping ()->()?) {
-        AVCaptureDevice.requestAccess(forMediaType: AVMediaTypeVideo, completionHandler: {
+        AVCaptureDevice.requestAccess(for: AVMediaType.video, completionHandler: {
             finished in
             DispatchQueue.main.async {
                 complectionHandler()
@@ -214,7 +214,7 @@ class SPPhotoLibraryPermission: SPPermissionInterface {
 class SPMicrophonePermission: SPPermissionInterface {
     
     func isAuthorized(withComlectionHandler complectionHandler: @escaping (Bool) -> ()?) {
-        if AVAudioSession.sharedInstance().recordPermission() == .granted {
+        if AVAudioSession.sharedInstance().recordPermission == .granted {
             complectionHandler(true)
         } else {
             complectionHandler(false)

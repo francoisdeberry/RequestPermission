@@ -131,11 +131,7 @@ public extension UIDevice {
     }
     
     func isPortraitOrientation() -> Bool {
-        if (UIDeviceOrientationIsPortrait(UIDevice.current.orientation)) {
-            return true
-        } else {
-            return false
-        }
+        return UIApplication.shared.statusBarOrientation == .portrait
     }
 }
 

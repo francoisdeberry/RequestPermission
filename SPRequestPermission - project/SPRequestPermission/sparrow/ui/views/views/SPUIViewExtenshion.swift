@@ -142,7 +142,7 @@ public extension UIView {
 }
 
 // MARK: - gradeView
-public extension UIView {
+@objc public extension UIView {
     
     func addGrade(alpha: CGFloat, color: UIColor = UIColor.black) -> UIView {
         let gradeView = UIView.init()

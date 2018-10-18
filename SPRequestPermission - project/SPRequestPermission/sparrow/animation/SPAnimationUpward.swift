@@ -32,7 +32,7 @@ public class SPAnimationUpward {
                    delay: TimeInterval = 0,
                    withComplection completion: (() -> Void)! = {}) {
         
-        var options: UIViewAnimationOptions = []
+        var options: UIView.AnimationOptions = []
         options.insert(.curveEaseIn)
         
         SPAnimationSpring.animate(
@@ -78,7 +78,7 @@ public class SPAnimationUpward {
         view.isHidden = false
         view.transform = CGAffineTransform(translationX: 0, y: UIScreen.main.bounds.height / coefLenthForTransition)
         
-        var options: UIViewAnimationOptions = []
+        var options: UIView.AnimationOptions = []
         options.insert(.curveEaseOut)
         
         SPAnimationSpring.animate(
@@ -88,7 +88,7 @@ public class SPAnimationUpward {
             },
             delay: delay,
             options: options,
-            withComplection: { finished in
+            withComplection: {
                 completion()
         })
     }
@@ -96,7 +96,7 @@ public class SPAnimationUpward {
     static func showList(_ duration: TimeInterval = durationListAnimation,
                        views: [UIView],
                        delayPerItem: TimeInterval = delayPerItem,
-                       options: UIViewAnimationOptions = [],
+                       options: UIView.AnimationOptions = [],
                        withComplection completion: (() -> Void)! = {}) {
         
         var del: Double = 0

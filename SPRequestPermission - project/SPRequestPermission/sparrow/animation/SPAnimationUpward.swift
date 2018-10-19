@@ -39,10 +39,10 @@ public class SPAnimationUpward {
             duration, animations: {
                 view.alpha = 0
                 view.transform = CGAffineTransform(translationX: 0, y: -UIScreen.main.bounds.height / coefLenthForTransition)
-            },
+        },
             delay: delay,
             options: options,
-            withComplection: { finished in
+            withComplection: {
                 completion()
                 
         })

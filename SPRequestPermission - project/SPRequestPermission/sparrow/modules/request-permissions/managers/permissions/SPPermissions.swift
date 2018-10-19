@@ -151,12 +151,11 @@ class SPCameraPermission: SPPermissionInterface {
 class SPNotificationPermission: SPPermissionInterface {
     
     func isAuthorized(withComlectionHandler complectionHandler: @escaping (Bool) -> ()?) {
-        let notificationType = UIApplication.shared.currentUserNotificationSettings!.types
-        if notificationType == [] {
-            complectionHandler(false)
-        } else {
-            complectionHandler(true)
-        }
+        
+        let current = UNUserNotificationCenter.current()
+        current.getNotificationSettings(completionHandler: { settings in
+            complectionHandler(settings.authorizationStatus == .authorized)
+        })
     }
     
     func request(withComlectionHandler complectionHandler: @escaping ()->()?) {

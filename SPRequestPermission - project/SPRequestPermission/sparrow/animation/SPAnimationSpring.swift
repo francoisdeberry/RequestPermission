@@ -32,7 +32,7 @@ public class SPAnimationSpring {
                         spring: CGFloat = spring,
                         velocity: CGFloat = velocity,
                         options: UIView.AnimationOptions = [],
-                        withComplection completion: (() -> Void)! = {}) {
+                        withComplection completion: @escaping (() -> Void) = {}) {
         
         UIView.animate(
             withDuration: duration,
